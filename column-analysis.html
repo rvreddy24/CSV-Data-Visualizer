@@ -1,0 +1,169 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Column Analysis - CSV Data Analyzer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+    <header class="app-header">
+        <h1 class="app-title">
+            <a href="index.html#charts" class="home-link">CSV Data Analyzer</a>
+        </h1>
+        <div class="file-info">
+            <span id="fileName">Column Analysis</span>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <!-- Update the view controls section -->
+        <div class="view-controls show">
+            <button onclick="navigateBack('charts')">
+                <i class="fas fa-chart-bar"></i> Charts
+            </button>
+            <button onclick="navigateBack('statistics')">
+                <i class="fas fa-calculator"></i> Statistics
+            </button>
+            <button class="active">
+                <i class="fas fa-columns"></i> Column Analysis
+            </button>
+        </div>
+
+        <div id="columnAnalysisContainer">
+            <div class="stats-grid">
+                <!-- Content will be dynamically added here -->
+            </div>
+        </div>
+    </main>
+
+    <script>
+        // Navigation handler
+        function navigateBack(view) {
+            localStorage.setItem('currentView', view);
+            window.location.href = 'index.html';
+        }
+
+        // Home link handler
+        document.querySelector('.home-link').addEventListener('click', (e) => {
+            e.preventDefault();
+            navigateBack('charts');
+        });
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const data = JSON.parse(sessionStorage.getItem('analysisData') || '[]');
+            if (!data || data.length === 0) {
+                window.location.href = 'index.html';
+                return;
+            }
+
+            // Update filename if available
+            const fileName = localStorage.getItem('fileName');
+            if (fileName) {
+                document.getElementById('fileName').textContent = fileName;
+            }
+
+            // Display the analysis
+            const container = document.querySelector('.stats-grid');
+            const columns = Object.keys(data[0]);
+            
+            columns.forEach(column => {
+                const values = data.map(row => row[column]);
+                const numericValues = values.filter(v => !isNaN(v) && v !== '');
+                const isNumeric = numericValues.length > values.length * 0.5;
+                
+                const card = document.createElement('div');
+                card.className = 'stats-card';
+                
+                let statsHtml = `
+                    <h3>${column}</h3>
+                    <div class="stats-content">
+                        <div class="stat-item">
+                            <i class="fas fa-hashtag"></i>
+                            <div class="stat-details">
+                                <span class="stat-label">Total Values</span>
+                                <span class="stat-value">${values.length}</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-fingerprint"></i>
+                            <div class="stat-details">
+                                <span class="stat-label">Unique Values</span>
+                                <span class="stat-value">${new Set(values).size}</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-times-circle"></i>
+                            <div class="stat-details">
+                                <span class="stat-label">Missing Values</span>
+                                <span class="stat-value">${values.filter(v => !v).length}</span>
+                            </div>
+                        </div>
+                `;
+
+                if (isNumeric) {
+                    const numbers = numericValues.map(v => parseFloat(v));
+                    const mean = numbers.reduce((a, b) => a + b, 0) / numbers.length;
+                    const min = Math.min(...numbers);
+                    const max = Math.max(...numbers);
+                    
+                    statsHtml += `
+                        <div class="stat-item">
+                            <i class="fas fa-calculator"></i>
+                            <div class="stat-details">
+                                <span class="stat-label">Mean</span>
+                                <span class="stat-value">${mean.toFixed(2)}</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-arrow-down"></i>
+                            <div class="stat-details">
+                                <span class="stat-label">Min</span>
+                                <span class="stat-value">${min}</span>
+                            </div>
+                        </div>
+                        <div class="stat-item">
+                            <i class="fas fa-arrow-up"></i>
+                            <div class="stat-details">
+                                <span class="stat-label">Max</span>
+                                <span class="stat-value">${max}</span>
+                            </div>
+                        </div>
+                    `;
+                } else {
+                    const frequencies = values.reduce((acc, val) => {
+                        acc[val] = (acc[val] || 0) + 1;
+                        return acc;
+                    }, {});
+                    
+                    const topCategories = Object.entries(frequencies)
+                        .sort((a, b) => b[1] - a[1])
+                        .slice(0, 3);
+                    
+                    statsHtml += `
+                        <div class="stat-item full-width">
+                            <i class="fas fa-list"></i>
+                            <div class="stat-details">
+                                <span class="stat-label">Top Categories</span>
+                                <div class="categories-list">
+                                    ${topCategories.map(([cat, count]) => `
+                                        <div class="category-item">
+                                            <span class="category-name">${cat || '(empty)'}</span>
+                                            <span class="category-count">${count}</span>
+                                        </div>
+                                    `).join('')}
+                                </div>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                statsHtml += '</div>';
+                card.innerHTML = statsHtml;
+                container.appendChild(card);
+            });
+        });
+    </script>
+</body>
+</html> 

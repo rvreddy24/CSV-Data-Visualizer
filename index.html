@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CSV Data Analyzer</title>
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-box-and-violin-plot@4.0.0"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-chart-matrix@2.0.1"></script>
+</head>
+<body>
+    <header class="app-header">
+        <h1 class="app-title">
+            <a href="javascript:void(0)" class="home-link">CSV Data Analyzer</a>
+        </h1>
+        <div class="file-info">
+            <span id="fileName">No file selected</span>
+        </div>
+    </header>
+
+    <main class="app-main">
+        <div class="view-controls">
+            <button data-view="charts" onclick="navigateToView('charts')" class="active">
+                <i class="fas fa-chart-bar"></i> Charts
+            </button>
+            <button data-view="statistics" onclick="navigateToView('statistics')">
+                <i class="fas fa-calculator"></i> Statistics
+            </button>
+            <button data-view="column-analysis" onclick="navigateToView('column-analysis')">
+                <i class="fas fa-columns"></i> Column Analysis
+            </button>
+        </div>
+
+        <div id="dropZone" class="drop-zone">
+            <i class="fas fa-cloud-upload-alt"></i>
+            <h2>Drag & Drop CSV File</h2>
+            <p>or</p>
+            <label class="file-input-label">
+                Choose File
+                <input type="file" id="fileInput" accept=".csv" style="display: none;">
+            </label>
+        </div>
+
+        <div id="chartsView" class="view" style="display: none;">
+            <div class="charts-grid"></div>
+        </div>
+
+        <div id="statisticsView" class="view" style="display: none;">
+            <div class="stats-grid"></div>
+        </div>
+    </main>
+
+    <script src="js/TableManager.js"></script>
+    <script src="js/ChartRenderer.js"></script>
+    <script src="js/StatsManager.js"></script>
+    <script src="js/main.js"></script>
+    <div class="chart-overlay"></div>
+</body>
+</html>
